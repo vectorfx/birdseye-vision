@@ -156,7 +156,7 @@ A reference example ships at [`examples/healthz-endpoint/`](examples/healthz-end
 
 ## When NOT to use it
 
-- **You ship single-file changes 90% of the time.** birdseye still helps (Type A goes fast), but work-file rarely fires. Maybe overkill.
+- **You ship single-file changes 90% of the time.** birdseye still helps (Type A goes fast), but this is made for devs who want to code more than 1 thing at once.
 - **You hate process frameworks.** This *is* a process framework, even though it's lean. If "discipline" feels like ceremony to you, you'll fight the rules.
 - **You don't use Claude Code.** This is Claude Code-specific. The skills and the SessionStart hook mechanism are CC primitives.
 
