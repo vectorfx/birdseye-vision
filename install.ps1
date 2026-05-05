@@ -33,40 +33,63 @@ New-Item -ItemType Directory -Force -Path $HooksDir                             
 Copy-Item -Force (Join-Path $ScriptDir "skills\birdseye-vision\SKILL.md") (Join-Path $SkillsDir "birdseye-vision\SKILL.md")
 Copy-Item -Force (Join-Path $ScriptDir "skills\work-file\SKILL.md")        (Join-Path $SkillsDir "work-file\SKILL.md")
 Copy-Item -Force (Join-Path $ScriptDir "hooks\birdseye-vision-injector.js") (Join-Path $HooksDir "birdseye-vision-injector.js")
+Copy-Item -Force (Join-Path $ScriptDir "hooks\birdseye-prompt-guard.js")    (Join-Path $HooksDir "birdseye-prompt-guard.js")
 
-Write-Host "  [OK] Skills + hook copied"
+Write-Host "  [OK] Skills + hooks copied"
 
 # Patch settings.json
 if (-not (Test-Path $Settings)) {
-    '{"hooks":{"SessionStart":[]}}' | Out-File -FilePath $Settings -Encoding utf8
+    '{"hooks":{"SessionStart":[],"UserPromptSubmit":[]}}' | Out-File -FilePath $Settings -Encoding utf8
 }
 
 $home_posix = ($env:USERPROFILE -replace '\\', '/')
-$hookCmd = 'node "' + $home_posix + '/.claude/hooks/birdseye-vision-injector.js"'
+$injectorCmd = 'node "' + $home_posix + '/.claude/hooks/birdseye-vision-injector.js"'
+$guardCmd    = 'node "' + $home_posix + '/.claude/hooks/birdseye-prompt-guard.js"'
 
 $cfg = Get-Content $Settings -Raw | ConvertFrom-Json
-if (-not $cfg.hooks)              { $cfg | Add-Member -NotePropertyName hooks -NotePropertyValue ([PSCustomObject]@{}) }
-if (-not $cfg.hooks.SessionStart) { $cfg.hooks | Add-Member -NotePropertyName SessionStart -NotePropertyValue @() }
+if (-not $cfg.hooks)                  { $cfg | Add-Member -NotePropertyName hooks -NotePropertyValue ([PSCustomObject]@{}) }
+if (-not $cfg.hooks.SessionStart)     { $cfg.hooks | Add-Member -NotePropertyName SessionStart -NotePropertyValue @() }
+if (-not $cfg.hooks.UserPromptSubmit) { $cfg.hooks | Add-Member -NotePropertyName UserPromptSubmit -NotePropertyValue @() }
 
-$already = $false
+# Register SessionStart injector (idempotent)
+$alreadySession = $false
 foreach ($group in $cfg.hooks.SessionStart) {
     if ($group.hooks) {
         foreach ($h in $group.hooks) {
-            if ($h.command -and $h.command.Contains("birdseye-vision-injector")) { $already = $true }
+            if ($h.command -and $h.command.Contains("birdseye-vision-injector")) { $alreadySession = $true }
         }
     }
 }
-
-if (-not $already) {
+if (-not $alreadySession) {
     $newGroup = [PSCustomObject]@{
-        hooks = @([PSCustomObject]@{ type = "command"; command = $hookCmd })
+        hooks = @([PSCustomObject]@{ type = "command"; command = $injectorCmd })
     }
     $cfg.hooks.SessionStart = @($cfg.hooks.SessionStart) + $newGroup
-    $cfg | ConvertTo-Json -Depth 20 | Out-File -FilePath $Settings -Encoding utf8
     Write-Host "  [OK] SessionStart hook registered in settings.json"
 } else {
     Write-Host "  [OK] SessionStart hook already registered (skipped)"
 }
+
+# Register UserPromptSubmit guard (idempotent)
+$alreadyGuard = $false
+foreach ($group in $cfg.hooks.UserPromptSubmit) {
+    if ($group.hooks) {
+        foreach ($h in $group.hooks) {
+            if ($h.command -and $h.command.Contains("birdseye-prompt-guard")) { $alreadyGuard = $true }
+        }
+    }
+}
+if (-not $alreadyGuard) {
+    $newGroup = [PSCustomObject]@{
+        hooks = @([PSCustomObject]@{ type = "command"; command = $guardCmd })
+    }
+    $cfg.hooks.UserPromptSubmit = @($cfg.hooks.UserPromptSubmit) + $newGroup
+    Write-Host "  [OK] UserPromptSubmit guard registered in settings.json"
+} else {
+    Write-Host "  [OK] UserPromptSubmit guard already registered (skipped)"
+}
+
+$cfg | ConvertTo-Json -Depth 20 | Out-File -FilePath $Settings -Encoding utf8
 
 Write-Host ""
 Write-Host "[DONE] Restart Claude Code to activate."

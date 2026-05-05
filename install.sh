@@ -35,12 +35,13 @@ mkdir -p "$SKILLS_DIR/birdseye-vision" "$SKILLS_DIR/work-file" "$HOOKS_DIR"
 cp "$SCRIPT_DIR/skills/birdseye-vision/SKILL.md" "$SKILLS_DIR/birdseye-vision/SKILL.md"
 cp "$SCRIPT_DIR/skills/work-file/SKILL.md"        "$SKILLS_DIR/work-file/SKILL.md"
 cp "$SCRIPT_DIR/hooks/birdseye-vision-injector.js" "$HOOKS_DIR/birdseye-vision-injector.js"
+cp "$SCRIPT_DIR/hooks/birdseye-prompt-guard.js"    "$HOOKS_DIR/birdseye-prompt-guard.js"
 
-echo "  ✓ Skills + hook copied"
+echo "  ✓ Skills + hooks copied"
 
-# Patch settings.json with the SessionStart hook
+# Patch settings.json with SessionStart + UserPromptSubmit hooks
 if [ ! -f "$SETTINGS" ]; then
-  echo '{"hooks":{"SessionStart":[]}}' > "$SETTINGS"
+  echo '{"hooks":{"SessionStart":[],"UserPromptSubmit":[]}}' > "$SETTINGS"
 fi
 
 # Use node for safe JSON manipulation (already a Claude Code dep)
@@ -48,25 +49,35 @@ node - "$SETTINGS" <<'NODE'
 const fs = require("fs");
 const path = process.argv[2];
 const home = require("os").homedir();
-const hookCmd = `node "${home}/.claude/hooks/birdseye-vision-injector.js"`;
+const injectorCmd = `node "${home}/.claude/hooks/birdseye-vision-injector.js"`;
+const guardCmd    = `node "${home}/.claude/hooks/birdseye-prompt-guard.js"`;
 
 const cfg = JSON.parse(fs.readFileSync(path, "utf8"));
 cfg.hooks = cfg.hooks || {};
-cfg.hooks.SessionStart = cfg.hooks.SessionStart || [];
+cfg.hooks.SessionStart     = cfg.hooks.SessionStart     || [];
+cfg.hooks.UserPromptSubmit = cfg.hooks.UserPromptSubmit || [];
 
-const already = cfg.hooks.SessionStart.some(group =>
+const alreadySession = cfg.hooks.SessionStart.some(group =>
   (group.hooks || []).some(h => (h.command || "").includes("birdseye-vision-injector"))
 );
-
-if (!already) {
-  cfg.hooks.SessionStart.push({
-    hooks: [{ type: "command", command: hookCmd }]
-  });
-  fs.writeFileSync(path, JSON.stringify(cfg, null, 2));
+if (!alreadySession) {
+  cfg.hooks.SessionStart.push({ hooks: [{ type: "command", command: injectorCmd }] });
   console.log("  ✓ SessionStart hook registered in settings.json");
 } else {
   console.log("  ✓ SessionStart hook already registered (skipped)");
 }
+
+const alreadyGuard = cfg.hooks.UserPromptSubmit.some(group =>
+  (group.hooks || []).some(h => (h.command || "").includes("birdseye-prompt-guard"))
+);
+if (!alreadyGuard) {
+  cfg.hooks.UserPromptSubmit.push({ hooks: [{ type: "command", command: guardCmd }] });
+  console.log("  ✓ UserPromptSubmit guard registered in settings.json");
+} else {
+  console.log("  ✓ UserPromptSubmit guard already registered (skipped)");
+}
+
+fs.writeFileSync(path, JSON.stringify(cfg, null, 2));
 NODE
 
 echo ""

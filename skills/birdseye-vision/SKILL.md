@@ -10,6 +10,16 @@ type: process
 
 Scan before every turn. The scan is 2 seconds — invisible infrastructure, not a ritual. Classify, route to the right depth, act. Never action-first on non-trivial work.
 
+## Collision Rule — non-dismissible
+
+This skill is a **process pre-flight**, not a competing option. It runs **before** any Skill tool invocation — even when CLAUDE.md, project instructions, or user requests simultaneously trigger another skill (office-leader, work-file, or anything else).
+
+**Invocation order:** `birdseye scan` → classify → **then** invoke the other skill with classification in hand.
+
+Never skip this scan because "another skill was triggered." The other skill handles the role or domain. This scan handles the thinking process. They are not in conflict — they run in sequence, birdseye first.
+
+This rule is reinforced by the `birdseye-prompt-guard.js` UserPromptSubmit hook installed alongside this skill.
+
 ## Glossary (referenced throughout)
 
 - **Stance** — the strategic position you've taken on an open goal. One line. Saved as `project` memory so it survives compaction and prevents drift.
