@@ -10,6 +10,8 @@ type: process
 
 Scan before every turn. The scan is 2 seconds — invisible infrastructure, not a ritual. Classify, route to the right depth, act. Never action-first on non-trivial work.
 
+**Objectivity mandate:** Birdseye is analysis, not validation. If the stated plan has a flaw, name it. If the obvious path is wrong, say so. Agreeableness is an anti-pattern here — the user needs clear thinking, not agreement.
+
 ## Collision Rule — non-dismissible
 
 This skill is a **process pre-flight**, not a competing option. It runs **before** any Skill tool invocation — even when CLAUDE.md, project instructions, or user requests simultaneously trigger another skill (office-leader, work-file, or anything else).
@@ -92,7 +94,7 @@ If you've classified 3+ turns in a row as C/D on the same thread, recalibrate �
 **Stance lookup (every C/D turn):**
 Check memory for active `Stance:` entries matching the current goal. If one exists, surface it under `**Active Stance:**` in the block.
 
-**Silent re-scan rule:** The 5-turn re-scan and drift checks happen *internally*. Only surface a fresh pre-action block if classification changed, drift was caught, or new implementation intent appeared. Don't make the user read the same block every 5 turns — that's noise.
+**Re-scan surface rule:** At turn 5+ on a sustained thread, surface a visible `**Re-scan (turn N):**` line with fresh classification. Not silent — visible. Silent re-scans get skipped. If classification unchanged, one line is enough: `Re-scan (turn 6): still Type D, no drift detected.` If it changed, surface a fresh block.
 
 ---
 
@@ -134,9 +136,10 @@ Never let active work-files silently disappear across sessions. This is the brid
 
 **Type C (compact):**
 ```
-**Vision:** [deeper goal — not a paraphrase]
+**Vision:** [what the world looks like if this works — NOT a paraphrase of what was asked]
 **Chosen Path:** [path] — [why in one line]
-**Devil's Advocate:** [strongest case against the chosen path]
+**Devil's Advocate:** [attack the main assumption this path depends on — no pre-bias]
+**Comeback:** [valid response that holds the path — or "no valid comeback, rethink"]
 
 **Process:**
 1. [first step — usually understand/context, not action]
@@ -149,14 +152,17 @@ Never let active work-files silently disappear across sessions. This is the brid
 **Type D (full):**
 ```
 **Active Stance:** [pulled from memory if relevant — else omit]
-**Vision:** [deeper goal]
+**Vision:** [what the world looks like if this works perfectly in 1-3 years — NOT what was asked. Answer WHY it matters, not WHAT was requested]
 **Blast Radius:** [specific files, systems, contracts, downstream consumers — vague is useless]
 
 **Paths Considered:**
 - Obvious: ...
 - Unconventional: ... [or "only one real path" if true]
 
-**Devil's Advocate:** [strongest case against the chosen path]
+**Devil's Advocate:** [attack the MAIN ASSUMPTION the Chosen Path depends on — directly, no pre-bias. If you've already dismissed it in your head, try harder. Make it uncomfortable]
+**Comeback:** [is there a genuinely valid response to the DA that holds the path? State it in one line. If no valid comeback exists → rethink the path before proceeding]
+
+**Blind Spot:** [what am I NOT considering that could materially change this answer?]
 
 **Stance:** [the position you're taking — one line that survives compaction]
 **Chosen Path:** [path] — [why]
@@ -173,8 +179,11 @@ Never let active work-files silently disappear across sessions. This is the brid
 ```
 
 **Block rules:**
-- Vision = the real goal, not a paraphrase. "Add a button" → what the button achieves.
-- Devil's Advocate is mandatory. If you can't argue against your chosen path, you didn't think.
+- Vision = what the world looks like if this works. NOT a paraphrase of what was asked. If you wrote "user wants X" — rewrite it. Answer: why does X matter in 1-3 years?
+- Devil's Advocate must attack the main assumption, not a strawman. If it doesn't make you reconsider even briefly, it's not real.
+- Comeback is the dialectic close — DA raises the threat, Comeback answers it honestly. If no comeback holds, the path is wrong.
+- Blind Spot is mandatory on Type D. Name what's outside the frame entirely.
+- Stance lives in memory. Retire it when the goal is reached (delete the memory entry).
 - Stance lives in memory. Retire it when the goal is reached (delete the memory entry).
 - Skill routing — only when fit is obvious. Never forced.
 - Question — allowed when paths genuinely depend on info only the user has. One sharp question, not a checklist.
