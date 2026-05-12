@@ -11,7 +11,11 @@
 // Installed by: install.sh / install.ps1 (UserPromptSubmit hook)
 
 process.stdout.write(
-  "[birdseye-vision] Pre-flight check: classify this request (Step 0) BEFORE invoking any Skill tool. " +
-  "If Type C or D → run the pre-action block first. " +
-  "Birdseye is a process pre-flight, not an option — it runs before office-leader, work-file, or any other skill.\n"
+  "[birdseye-vision] Pre-flight: classify Step 0 BEFORE any Skill tool. " +
+  "Type A (pure execution / single obvious answer) → SKIP the block, just act. No compute waste. " +
+  "Type B → one visible line. " +
+  "Type C → full compact block (Vision + Chosen Path + Devil's Advocate + Comeback + Process) VISIBLE before first non-trivial tool call. " +
+  "Type D → full block (Vision + Blast Radius + 2-4 named Paths + Devil's Advocate + Comeback + Blind Spot + Stance + Chosen Path + Reversibility + Process) VISIBLE before first non-trivial tool call. " +
+  "HALF-ARSE FAILURE: 'Pre-flight' header followed by tool calls within 2 lines on a C/D turn = violation. Owe a retroactive block. " +
+  "Birdseye runs BEFORE office-leader, work-file, or any other skill — not instead of, not skipped because another skill triggered.\n"
 );

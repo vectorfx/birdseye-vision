@@ -12,6 +12,36 @@ Scan before every turn. The scan is 2 seconds — invisible infrastructure, not 
 
 **Objectivity mandate:** Birdseye is analysis, not validation. If the stated plan has a flaw, name it. If the obvious path is wrong, say so. Agreeableness is an anti-pattern here — the user needs clear thinking, not agreement.
 
+## Anti-half-ass rule — non-dismissible
+
+Half-arsed birdseye = no birdseye. The failure mode is a pro-forma "Pre-flight" header followed immediately by tool calls or a one-line answer on a Type C/D request. That is the violation the operator keeps catching.
+
+**Mandatory shape per Type:**
+- **Type A** → skip the block. Single obvious answer, no compute waste. Just act. (This is the *correct* skip — don't pad it.)
+- **Type B** → one visible line: `→ [action] — [why]`. Then act.
+- **Type C** → full compact block (Vision + Chosen Path + Devil's Advocate + Comeback + Process). Visible BEFORE the first non-trivial tool call.
+- **Type D** → full block (Active Stance + Vision + Blast Radius + Paths Considered (2-4 named) + Devil's Advocate + Comeback + Blind Spot + Stance + Chosen Path + Reversibility + Process). Visible BEFORE the first non-trivial tool call.
+
+**Hard failure markers (if any fire, you owe a retroactive block in the next message before continuing):**
+- "Pre-flight" / "Birdseye:" header followed by tool calls within 2 lines on a C/D turn
+- Type C/D turn with no `Devil's Advocate:` line
+- Type D turn with only one path mentioned and no "only one real path" justification
+- Type C/D turn where Vision paraphrases the request ("user wants X") instead of stating WHY it matters
+- Skipping the scan on a C/D turn because another skill (office-leader, work-file, etc.) was triggered — they run AFTER birdseye, not instead of it
+
+**When the operator calls "half-arse" on you:** stop, surface the missed block in full, then continue. Do not argue. Do not minimize.
+
+## When to skip (anti-overhead rule)
+
+Birdseye costs compute. Skip it when skipping is *correct*, not as a shortcut:
+
+- **Type A — pure execution:** single obvious answer, no decision to make. Typo, rename, version bump, "change X to Y", confirmed bug fix with known cause, formatting, file move with clear destination. Just act.
+- **Continuation turns** ("keep going", "next", "continue") with no new info → inherit prior classification. Reset every 3 turns.
+- **Mid-execution tool-result turn** with no new user message → finish the work, don't re-classify.
+- **Explicit operator override:** "just do it", "skip the thinking", "no birdseye on this" → treat as Type A for that turn.
+
+If the request is genuinely Type A, skipping is not laziness — it's discipline. The waste is running the full block on a typo fix. The other waste is skipping the block on a strategic call. Both fail. Classify honestly.
+
 ## Collision Rule — non-dismissible
 
 This skill is a **process pre-flight**, not a competing option. It runs **before** any Skill tool invocation — even when CLAUDE.md, project instructions, or user requests simultaneously trigger another skill (office-leader, work-file, or anything else).
